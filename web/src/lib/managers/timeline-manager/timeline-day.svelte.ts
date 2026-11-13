@@ -1,7 +1,7 @@
 import { AssetOrder, AssetOrderBy } from '@immich/sdk';
 import { SvelteSet } from 'svelte/reactivity';
 import type { CommonLayoutOptions, CommonPosition } from '$lib/utils/layout-utils';
-import { getJustifiedLayoutFromAssets } from '$lib/utils/layout-utils';
+import { getGridLayoutFromAssets } from '$lib/utils/layout-utils';
 import { getOrderingDate, plainDateTimeCompare } from '$lib/utils/timeline-util';
 import { TUNABLES } from '$lib/utils/tunables';
 import type { TimelineMonth } from './timeline-month.svelte';
@@ -165,13 +165,22 @@ export class TimelineDay {
       return;
     }
     const assets = this.viewerAssets.map((viewerAsset) => viewerAsset.asset!);
-    const geometry = getJustifiedLayoutFromAssets(assets, options);
+    const geometry = getGridLayoutFromAssets(assets, options);
+    const footerHeight = options.footerHeight ?? 0;
     this.width = geometry.containerWidth;
-    this.height = assets.length === 0 ? 0 : geometry.containerHeight;
+    let rowIndex = -1;
+    let rowTop = -Infinity;
     // TODO: lazily get positions instead of loading them all here
     for (let i = 0; i < this.viewerAssets.length; i++) {
-      this.viewerAssets[i].position = geometry.getPosition(i);
+      const position = geometry.getPosition(i);
+      if (position.top - rowTop > options.heightTolerance) {
+        rowTop = position.top;
+        rowIndex++;
+      }
+      this.viewerAssets[i].position = { ...position, top: position.top + rowIndex * footerHeight };
     }
+    const rowCount = rowIndex + 1;
+    this.height = assets.length === 0 ? 0 : geometry.containerHeight + rowCount * footerHeight;
     this.updateAssetBoundaries();
   }
 
@@ -186,10 +195,11 @@ export class TimelineDay {
 
     const dayOffset = this.absoluteTimelineDayTop;
     const headerHeight = manager.headerHeight;
+    const footerHeight = manager.footerHeight;
     const expandedTop = visibleWindow.top - headerHeight - INTERSECTION_EXPAND_TOP - dayOffset;
     const expandedBottom = visibleWindow.bottom + headerHeight + INTERSECTION_EXPAND_BOTTOM - dayOffset;
 
-    const first = lowerBound(this.viewerAssets, expandedTop, (p) => p.top + p.height);
+    const first = lowerBound(this.viewerAssets, expandedTop, (p) => p.top + p.height + footerHeight);
     const last = lowerBound(this.viewerAssets, expandedBottom, (p) => p.top) - 1;
 
     const hasActive = last >= first && first < this.viewerAssets.length;

@@ -24,6 +24,7 @@
   import { Route } from '$lib/route';
   import { getAssetBulkActions } from '$lib/services/asset.service';
   import { getStackBulkActions } from '$lib/services/stack.service';
+  import { mediaQueryManager } from '$lib/stores/media-query-manager.svelte';
   import { getAssetMediaUrl, memoryLaneTitle } from '$lib/utils';
   import { type OnLink, type OnUnlink } from '$lib/utils/actions';
   import { openFileUploadDialog } from '$lib/utils/file-uploader';
@@ -37,7 +38,12 @@
   import { t } from 'svelte-i18n';
 
   let timelineManager = $state<TimelineManager>() as TimelineManager;
-  const options = { visibility: AssetVisibility.Timeline, withStacked: true, withPartners: true };
+  const options = $derived({
+    visibility: AssetVisibility.Timeline,
+    withStacked: true,
+    withPartners: true,
+    withExif: !mediaQueryManager.maxMd,
+  });
 
   let selectedAssets = $derived(assetMultiSelectManager.assets);
   let isLinkActionAvailable = $derived.by(() => {
@@ -98,6 +104,7 @@
     removeAction={AssetAction.ARCHIVE}
     onEscape={handleEscape}
     withStacked
+    showAssetMetadata
   >
     {#if authManager.preferences.memories.enabled}
       <ImageCarousel {items}>

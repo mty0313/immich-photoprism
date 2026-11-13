@@ -93,6 +93,7 @@ interface AssetBuilderOptions {
   assetType?: AssetType;
   visibility?: AssetVisibility;
   withCoordinates?: boolean;
+  withExif?: boolean;
   bbox?: BoundingBox;
 }
 
@@ -852,6 +853,26 @@ export class AssetRepository {
             qb.select(['asset_exif.city', 'asset_exif.country']),
           )
           .$if(!!options.withCoordinates, (qb) => qb.select(['asset_exif.latitude', 'asset_exif.longitude']))
+          .$if(!!options.withExif, (qb) =>
+            qb
+              .select([
+                'asset.originalFileName',
+                'asset_exif.make',
+                'asset_exif.model',
+                'asset_exif.lensModel',
+                'asset_exif.exposureTime',
+                'asset_exif.iso',
+                'asset_exif.fNumber',
+                'asset_exif.focalLength',
+                'asset_exif.exifImageWidth',
+                'asset_exif.exifImageHeight',
+              ])
+              .select(sql<number | null>`"asset_exif"."fileSizeInByte"::double precision`.as('fileSizeInByte')),
+          )
+          .$if(
+            !!options.withExif && (!auth.sharedLink || auth.sharedLink.showExif),
+            (qb) => qb.select(['asset_exif.state']),
+          )
           .where('asset.deletedAt', options.isTrashed ? 'is not' : 'is', null)
           .$if(options.visibility === undefined, withDefaultVisibility)
           .$if(!!options.visibility, (qb) => qb.where('asset.visibility', '=', options.visibility!))
@@ -959,6 +980,25 @@ export class AssetRepository {
               eb.fn.coalesce(eb.fn('array_agg', ['latitude']), sql.lit('{}')).as('latitude'),
               eb.fn.coalesce(eb.fn('array_agg', ['longitude']), sql.lit('{}')).as('longitude'),
             ]),
+          )
+          .$if(!!options.withExif, (qb) =>
+            qb.select((eb) => [
+              eb.fn.coalesce(eb.fn('array_agg', ['originalFileName']), sql.lit('{}')).as('originalFileName'),
+              eb.fn.coalesce(eb.fn('array_agg', ['make']), sql.lit('{}')).as('make'),
+              eb.fn.coalesce(eb.fn('array_agg', ['model']), sql.lit('{}')).as('model'),
+              eb.fn.coalesce(eb.fn('array_agg', ['lensModel']), sql.lit('{}')).as('lensModel'),
+              eb.fn.coalesce(eb.fn('array_agg', ['exposureTime']), sql.lit('{}')).as('exposureTime'),
+              eb.fn.coalesce(eb.fn('array_agg', ['iso']), sql.lit('{}')).as('iso'),
+              eb.fn.coalesce(eb.fn('array_agg', ['fNumber']), sql.lit('{}')).as('fNumber'),
+              eb.fn.coalesce(eb.fn('array_agg', ['focalLength']), sql.lit('{}')).as('focalLength'),
+              eb.fn.coalesce(eb.fn('array_agg', ['exifImageWidth']), sql.lit('{}')).as('exifImageWidth'),
+              eb.fn.coalesce(eb.fn('array_agg', ['exifImageHeight']), sql.lit('{}')).as('exifImageHeight'),
+              eb.fn.coalesce(eb.fn('array_agg', ['fileSizeInByte']), sql.lit('{}')).as('fileSizeInByte'),
+            ]),
+          )
+          .$if(
+            !!options.withExif && (!auth.sharedLink || auth.sharedLink.showExif),
+            (qb) => qb.select((eb) => eb.fn.coalesce(eb.fn('array_agg', ['state']), sql.lit('{}')).as('state')),
           )
           .$if(!!options.withStacked, (qb) =>
             qb.select((eb) => eb.fn.coalesce(eb.fn('json_agg', ['stack']), sql.lit('[]')).as('stack')),

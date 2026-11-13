@@ -4,6 +4,9 @@ type LayoutOptions = {
   headerHeight: number;
   rowHeight: number;
   gap: number;
+  footerHeight: number;
+  spacing: number;
+  minColumnWidth: number;
 };
 export abstract class VirtualScrollManager {
   topSectionHeight = $state(0);
@@ -22,15 +25,20 @@ export abstract class VirtualScrollManager {
   #rowHeight = $state(235);
   #headerHeight = $state(48);
   #gap = $state(12);
+  #footerHeight = $state(0);
+  #spacing = $state(2);
+  #minColumnWidth = $state(220);
   #scrolling = $state(false);
   #suspendTransitions = $state(false);
   #resetScrolling = debounce(() => (this.#scrolling = false), 1000);
   #resetSuspendTransitions = debounce(() => (this.suspendTransitions = false), 1000);
   #justifiedLayoutOptions = $derived({
-    spacing: 2,
+    spacing: this.#spacing,
     heightTolerance: 0.5,
     rowHeight: this.#rowHeight,
     rowWidth: Math.floor(this.viewportWidth),
+    footerHeight: this.#footerHeight,
+    minColumnWidth: this.#minColumnWidth,
   });
 
   constructor() {
@@ -90,6 +98,42 @@ export abstract class VirtualScrollManager {
     return this.#rowHeight;
   }
 
+  #setFooterHeight(value: number) {
+    if (this.#footerHeight === value) {
+      return false;
+    }
+    this.#footerHeight = value;
+    return true;
+  }
+
+  get footerHeight() {
+    return this.#footerHeight;
+  }
+
+  #setSpacing(value: number) {
+    if (this.#spacing === value) {
+      return false;
+    }
+    this.#spacing = value;
+    return true;
+  }
+
+  get spacing() {
+    return this.#spacing;
+  }
+
+  #setMinColumnWidth(value: number) {
+    if (this.#minColumnWidth === value) {
+      return false;
+    }
+    this.#minColumnWidth = value;
+    return true;
+  }
+
+  get minColumnWidth() {
+    return this.#minColumnWidth;
+  }
+
   set scrolling(value: boolean) {
     this.#scrolling = value;
     if (value) {
@@ -142,11 +186,21 @@ export abstract class VirtualScrollManager {
 
   protected updateViewportGeometry(_: boolean) {}
 
-  setLayoutOptions({ headerHeight = 48, rowHeight = 235, gap = 12 }: Partial<LayoutOptions> = {}) {
+  setLayoutOptions({
+    headerHeight = 48,
+    rowHeight = 235,
+    gap = 12,
+    footerHeight = 0,
+    spacing = 2,
+    minColumnWidth = 220,
+  }: Partial<LayoutOptions> = {}) {
     let changed = false;
     changed ||= this.#setHeaderHeight(headerHeight);
     changed ||= this.#setGap(gap);
     changed ||= this.#setRowHeight(rowHeight);
+    changed ||= this.#setFooterHeight(footerHeight);
+    changed ||= this.#setSpacing(spacing);
+    changed ||= this.#setMinColumnWidth(minColumnWidth);
     if (changed) {
       this.refreshLayout();
     }

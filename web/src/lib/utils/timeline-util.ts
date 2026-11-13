@@ -141,6 +141,12 @@ export const toTimelineAsset = (unknownAsset: AssetResponseDto | TimelineAsset):
   const people = assetResponse.people?.map((person) => person.name) || [];
 
   const localDateTime = fromISODateTimeUTCToObject(assetResponse.localDateTime);
+  const parsedLocalDateTime = DateTime.fromISO(assetResponse.localDateTime);
+  const parsedFileCreatedAt = DateTime.fromISO(assetResponse.fileCreatedAt);
+  const localOffsetHours =
+    parsedLocalDateTime.isValid && parsedFileCreatedAt.isValid
+      ? parsedLocalDateTime.diff(parsedFileCreatedAt, 'hours').hours
+      : 0;
   // Keep this consistent with the bucket loader (getTimes), which stores fileCreatedAt as UTC
   // components. The timeline sorts assets within a day by fileCreatedAt, so a mismatched
   // representation here would place re-inserted assets (e.g. undo archive) in the wrong spot.
@@ -170,6 +176,19 @@ export const toTimelineAsset = (unknownAsset: AssetResponseDto | TimelineAsset):
     people,
     latitude: assetResponse.exifInfo?.latitude || null,
     longitude: assetResponse.exifInfo?.longitude || null,
+    localOffsetHours,
+    originalFileName: assetResponse.originalFileName,
+    make: assetResponse.exifInfo?.make || null,
+    model: assetResponse.exifInfo?.model || null,
+    lensModel: assetResponse.exifInfo?.lensModel || null,
+    exposureTime: assetResponse.exifInfo?.exposureTime || null,
+    iso: assetResponse.exifInfo?.iso || null,
+    fNumber: assetResponse.exifInfo?.fNumber || null,
+    focalLength: assetResponse.exifInfo?.focalLength || null,
+    exifImageWidth: assetResponse.exifInfo?.exifImageWidth || null,
+    exifImageHeight: assetResponse.exifInfo?.exifImageHeight || null,
+    fileSizeInByte: assetResponse.exifInfo?.fileSizeInByte || null,
+    state: assetResponse.exifInfo?.state || null,
   };
 };
 

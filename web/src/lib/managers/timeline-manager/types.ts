@@ -38,6 +38,19 @@ export type TimelineAsset = {
   people: string[] | null;
   latitude?: number | null;
   longitude?: number | null;
+  localOffsetHours?: number;
+  originalFileName?: string | null;
+  make?: string | null;
+  model?: string | null;
+  lensModel?: string | null;
+  exposureTime?: string | null;
+  iso?: number | null;
+  fNumber?: number | null;
+  focalLength?: number | null;
+  exifImageWidth?: number | null;
+  exifImageHeight?: number | null;
+  fileSizeInByte?: number | null;
+  state?: string | null;
 };
 
 export type MoveAsset = { asset: TimelineAsset; date: TimelineDate };

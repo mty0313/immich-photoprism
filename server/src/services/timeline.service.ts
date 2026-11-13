@@ -71,6 +71,7 @@ export class TimelineService extends BaseService {
 
     if (auth.sharedLink && !auth.sharedLink.showExif) {
       dto.withCoordinates = false;
+      dto.withExif = false;
     }
 
     // eslint-disable-next-line unicorn/prefer-early-return

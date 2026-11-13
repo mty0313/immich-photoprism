@@ -209,6 +209,19 @@ export class TimelineMonth {
           : null,
         thumbhash: bucketAssets.thumbhash[i],
         people: null, // People are not included in the bucket assets
+        localOffsetHours: bucketAssets.localOffsetHours[i],
+        originalFileName: bucketAssets.originalFileName?.[i] ?? null,
+        make: bucketAssets.make?.[i] ?? null,
+        model: bucketAssets.model?.[i] ?? null,
+        lensModel: bucketAssets.lensModel?.[i] ?? null,
+        exposureTime: bucketAssets.exposureTime?.[i] ?? null,
+        iso: bucketAssets.iso?.[i] ?? null,
+        fNumber: bucketAssets.fNumber?.[i] ?? null,
+        focalLength: bucketAssets.focalLength?.[i] ?? null,
+        exifImageWidth: bucketAssets.exifImageWidth?.[i] ?? null,
+        exifImageHeight: bucketAssets.exifImageHeight?.[i] ?? null,
+        fileSizeInByte: bucketAssets.fileSizeInByte?.[i] ?? null,
+        state: bucketAssets.state?.[i] ?? null,
       };
 
       if (bucketAssets.latitude?.at(i) && bucketAssets.longitude?.at(i)) {

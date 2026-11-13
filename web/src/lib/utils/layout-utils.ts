@@ -23,6 +23,8 @@ export type CommonLayoutOptions = {
   rowWidth: number;
   spacing: number;
   heightTolerance: number;
+  footerHeight?: number;
+  minColumnWidth?: number;
 };
 
 export function getJustifiedLayoutFromAssets(
@@ -119,3 +121,71 @@ export type CommonPosition = {
   width: number;
   height: number;
 };
+
+export class SquareGridLayout implements CommonJustifiedLayout {
+  #containerWidth: number;
+  #columns: number;
+  #cellSize: number;
+  #gap: number;
+  #rows: number;
+
+  constructor(count: number, options: CommonLayoutOptions) {
+    const { rowWidth, spacing } = options;
+    const minColumnWidth = options.minColumnWidth ?? 200;
+    this.#containerWidth = rowWidth;
+    this.#gap = spacing;
+    this.#columns = Math.max(1, Math.floor((rowWidth + spacing) / (minColumnWidth + spacing)));
+    this.#cellSize = (rowWidth - spacing * (this.#columns - 1)) / this.#columns;
+    this.#rows = count === 0 ? 0 : Math.ceil(count / this.#columns);
+  }
+
+  get containerWidth() {
+    return this.#containerWidth;
+  }
+
+  get containerHeight() {
+    return this.#rows === 0 ? 0 : this.#rows * this.#cellSize + (this.#rows - 1) * this.#gap;
+  }
+
+  getTop(index: number) {
+    return Math.floor(index / this.#columns) * (this.#cellSize + this.#gap);
+  }
+
+  getLeft(index: number) {
+    return (index % this.#columns) * (this.#cellSize + this.#gap);
+  }
+
+  getWidth(_index: number) {
+    return this.#cellSize;
+  }
+
+  getHeight(_index: number) {
+    return this.#cellSize;
+  }
+
+  getPosition(index: number) {
+    return {
+      top: this.getTop(index),
+      left: this.getLeft(index),
+      width: this.#cellSize,
+      height: this.#cellSize,
+    };
+  }
+}
+
+export function getGridLayoutFromAssets(
+  assets: TimelineAsset[] | AssetResponseDto[],
+  options: CommonLayoutOptions,
+): CommonJustifiedLayout {
+  return new SquareGridLayout(assets.length, options);
+}
+
+export function getSquareCellSize(options: CommonLayoutOptions) {
+  const { rowWidth, spacing } = options;
+  const minColumnWidth = options.minColumnWidth ?? 200;
+  const columns = Math.max(1, Math.floor((rowWidth + spacing) / (minColumnWidth + spacing)));
+  return {
+    columns,
+    cellSize: (rowWidth - spacing * (columns - 1)) / columns,
+  };
+}

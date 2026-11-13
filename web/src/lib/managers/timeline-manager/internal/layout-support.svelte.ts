@@ -1,3 +1,4 @@
+import { getSquareCellSize } from '$lib/utils/layout-utils';
 import { TimelineManager } from '../timeline-manager.svelte';
 import type { TimelineMonth } from '../timeline-month.svelte';
 import type { UpdateGeometryOptions } from '../types';
@@ -10,9 +11,13 @@ export function updateGeometry(timelineManager: TimelineManager, month: Timeline
   if (!month.isLoaded) {
     const viewportWidth = timelineManager.viewportWidth;
     if (!month.isHeightActual) {
-      const unwrappedWidth = (3 / 2) * month.assetsCount * timelineManager.rowHeight * (7 / 10);
-      const rows = Math.ceil(unwrappedWidth / viewportWidth);
-      const height = timelineManager.headerHeight + Math.max(1, rows) * timelineManager.rowHeight;
+      const layoutOptions = timelineManager.justifiedLayoutOptions;
+      const { columns, cellSize } = getSquareCellSize({ ...layoutOptions, rowWidth: viewportWidth });
+      const rows = Math.max(1, Math.ceil(month.assetsCount / columns));
+      const height =
+        timelineManager.headerHeight +
+        rows * (cellSize + timelineManager.footerHeight) +
+        (rows - 1) * timelineManager.spacing;
       month.height = height;
     }
     return;

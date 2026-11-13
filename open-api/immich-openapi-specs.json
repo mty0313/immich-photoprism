@@ -16298,6 +16298,15 @@
             }
           },
           {
+            "name": "withExif",
+            "required": false,
+            "in": "query",
+            "description": "Include camera, exposure and file metadata such as make, model, lens, ISO, aperture and file size",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
             "name": "withPartners",
             "required": false,
             "in": "query",
@@ -16482,6 +16491,15 @@
             "required": false,
             "in": "query",
             "description": "Include location data in the response",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "withExif",
+            "required": false,
+            "in": "query",
+            "description": "Include camera, exposure and file metadata such as make, model, lens, ISO, aperture and file size",
             "schema": {
               "type": "boolean"
             }
@@ -32385,10 +32403,65 @@
             },
             "type": "array"
           },
+          "exifImageHeight": {
+            "description": "Array of image heights in pixels extracted from EXIF data",
+            "items": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "nullable": true,
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "exifImageWidth": {
+            "description": "Array of image widths in pixels extracted from EXIF data",
+            "items": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "nullable": true,
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "exposureTime": {
+            "description": "Array of exposure times (shutter speed) extracted from EXIF data",
+            "items": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "fNumber": {
+            "description": "Array of aperture f-numbers extracted from EXIF data",
+            "items": {
+              "format": "double",
+              "nullable": true,
+              "type": "number"
+            },
+            "type": "array"
+          },
           "fileCreatedAt": {
             "description": "Array of file creation timestamps in UTC",
             "items": {
               "type": "string"
+            },
+            "type": "array"
+          },
+          "fileSizeInByte": {
+            "description": "Array of file sizes in bytes",
+            "items": {
+              "format": "double",
+              "nullable": true,
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "focalLength": {
+            "description": "Array of focal lengths in millimeters extracted from EXIF data",
+            "items": {
+              "format": "double",
+              "nullable": true,
+              "type": "number"
             },
             "type": "array"
           },
@@ -32420,12 +32493,30 @@
             },
             "type": "array"
           },
+          "iso": {
+            "description": "Array of ISO sensitivity values extracted from EXIF data",
+            "items": {
+              "maximum": 2147483647,
+              "minimum": -2147483648,
+              "nullable": true,
+              "type": "integer"
+            },
+            "type": "array"
+          },
           "latitude": {
             "description": "Array of latitude coordinates extracted from EXIF GPS data",
             "items": {
               "format": "double",
               "nullable": true,
               "type": "number"
+            },
+            "type": "array"
+          },
+          "lensModel": {
+            "description": "Array of lens models extracted from EXIF data",
+            "items": {
+              "nullable": true,
+              "type": "string"
             },
             "type": "array"
           },
@@ -32451,6 +32542,29 @@
               "format": "double",
               "nullable": true,
               "type": "number"
+            },
+            "type": "array"
+          },
+          "make": {
+            "description": "Array of camera manufacturers extracted from EXIF data",
+            "items": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "model": {
+            "description": "Array of camera models extracted from EXIF data",
+            "items": {
+              "nullable": true,
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "originalFileName": {
+            "description": "Array of original file names including their extension",
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -32487,6 +32601,14 @@
               "minItems": 2,
               "nullable": true,
               "type": "array"
+            },
+            "type": "array"
+          },
+          "state": {
+            "description": "Array of state or province names extracted from EXIF GPS data",
+            "items": {
+              "nullable": true,
+              "type": "string"
             },
             "type": "array"
           },

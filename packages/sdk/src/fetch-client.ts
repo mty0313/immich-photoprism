@@ -3142,8 +3142,20 @@ export type TimeBucketAssetResponseDto = {
     createdAt: string[];
     /** Array of video/gif durations in milliseconds (null for static images) */
     duration: (number | null)[];
+    /** Array of image heights in pixels extracted from EXIF data */
+    exifImageHeight?: (number | null)[];
+    /** Array of image widths in pixels extracted from EXIF data */
+    exifImageWidth?: (number | null)[];
+    /** Array of exposure times (shutter speed) extracted from EXIF data */
+    exposureTime?: (string | null)[];
+    /** Array of aperture f-numbers extracted from EXIF data */
+    fNumber?: (number | null)[];
     /** Array of file creation timestamps in UTC */
     fileCreatedAt: string[];
+    /** Array of file sizes in bytes */
+    fileSizeInByte?: (number | null)[];
+    /** Array of focal lengths in millimeters extracted from EXIF data */
+    focalLength?: (number | null)[];
     /** Array of asset IDs in the time bucket */
     id: string[];
     /** Array indicating whether each asset is favorited */
@@ -3152,14 +3164,24 @@ export type TimeBucketAssetResponseDto = {
     isImage: boolean[];
     /** Array indicating whether each asset is in the trash */
     isTrashed: boolean[];
+    /** Array of ISO sensitivity values extracted from EXIF data */
+    iso?: (number | null)[];
     /** Array of latitude coordinates extracted from EXIF GPS data */
     latitude?: (number | null)[];
+    /** Array of lens models extracted from EXIF data */
+    lensModel?: (string | null)[];
     /** Array of live photo video asset IDs (null for non-live photos) */
     livePhotoVideoId: (string | null)[];
     /** Array of UTC offset hours at the time each photo was taken. Positive values are east of UTC, negative values are west of UTC. Values may be fractional (e.g., 5.5 for +05:30, -9.75 for -09:45). Applying this offset to 'fileCreatedAt' will give you the time the photo was taken from the photographer's perspective. */
     localOffsetHours: number[];
     /** Array of longitude coordinates extracted from EXIF GPS data */
     longitude?: (number | null)[];
+    /** Array of camera manufacturers extracted from EXIF data */
+    make?: (string | null)[];
+    /** Array of camera models extracted from EXIF data */
+    model?: (string | null)[];
+    /** Array of original file names including their extension */
+    originalFileName?: string[];
     /** Array of owner IDs for each asset */
     ownerId: string[];
     /** Array of projection types for 360° content (e.g., "EQUIRECTANGULAR", "CUBEFACE", "CYLINDRICAL") */
@@ -3168,6 +3190,8 @@ export type TimeBucketAssetResponseDto = {
     ratio: number[];
     /** Array of stack information as [stackId, assetCount] tuples (null for non-stacked assets) */
     stack?: (string[] | null)[];
+    /** Array of state or province names extracted from EXIF GPS data */
+    state?: (string | null)[];
     /** Array of BlurHash strings for generating asset previews (base64 encoded) */
     thumbhash: (string | null)[];
     /** Array of visibility statuses for each asset (e.g., ARCHIVE, TIMELINE, HIDDEN, LOCKED) */
@@ -7476,7 +7500,7 @@ export function tagAssets({ id, bulkIdsDto }: {
 /**
  * Get time bucket
  */
-export function getTimeBucket({ albumId, bbox, isFavorite, isTrashed, key, order, orderBy, personId, slug, tagId, timeBucket, userId, visibility, withCoordinates, withPartners, withStacked }: {
+export function getTimeBucket({ albumId, bbox, isFavorite, isTrashed, key, order, orderBy, personId, slug, tagId, timeBucket, userId, visibility, withCoordinates, withExif, withPartners, withStacked }: {
     albumId?: string;
     bbox?: string;
     isFavorite?: boolean;
@@ -7491,6 +7515,7 @@ export function getTimeBucket({ albumId, bbox, isFavorite, isTrashed, key, order
     userId?: string;
     visibility?: AssetVisibility;
     withCoordinates?: boolean;
+    withExif?: boolean;
     withPartners?: boolean;
     withStacked?: boolean;
 }, opts?: Oazapfts.RequestOpts) {
@@ -7512,6 +7537,7 @@ export function getTimeBucket({ albumId, bbox, isFavorite, isTrashed, key, order
         userId,
         visibility,
         withCoordinates,
+        withExif,
         withPartners,
         withStacked
     }))}`, {
@@ -7521,7 +7547,7 @@ export function getTimeBucket({ albumId, bbox, isFavorite, isTrashed, key, order
 /**
  * Get time buckets
  */
-export function getTimeBuckets({ albumId, bbox, isFavorite, isTrashed, key, order, orderBy, personId, slug, tagId, userId, visibility, withCoordinates, withPartners, withStacked }: {
+export function getTimeBuckets({ albumId, bbox, isFavorite, isTrashed, key, order, orderBy, personId, slug, tagId, userId, visibility, withCoordinates, withExif, withPartners, withStacked }: {
     albumId?: string;
     bbox?: string;
     isFavorite?: boolean;
@@ -7535,6 +7561,7 @@ export function getTimeBuckets({ albumId, bbox, isFavorite, isTrashed, key, orde
     userId?: string;
     visibility?: AssetVisibility;
     withCoordinates?: boolean;
+    withExif?: boolean;
     withPartners?: boolean;
     withStacked?: boolean;
 }, opts?: Oazapfts.RequestOpts) {
@@ -7555,6 +7582,7 @@ export function getTimeBuckets({ albumId, bbox, isFavorite, isTrashed, key, orde
         userId,
         visibility,
         withCoordinates,
+        withExif,
         withPartners,
         withStacked
     }))}`, {

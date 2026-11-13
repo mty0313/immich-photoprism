@@ -2,6 +2,7 @@
   import { afterNavigate, beforeNavigate } from '$app/navigation';
   import { page } from '$app/state';
   import Thumbnail from '$lib/components/assets/thumbnail/Thumbnail.svelte';
+  import AssetMetadataPanel from '$lib/components/timeline/AssetMetadataPanel.svelte';
   import Month from '$lib/components/timeline/Month.svelte';
   import Scrubber from '$lib/components/timeline/Scrubber.svelte';
   import TimelineAssetViewer from '$lib/components/timeline/TimelineAssetViewer.svelte';
@@ -21,6 +22,7 @@
   import { assetsSnapshot } from '$lib/managers/timeline-manager/utils.svelte';
   import { keyboardManager } from '$lib/stores/keyboard-manager.svelte';
   import { mediaQueryManager } from '$lib/stores/media-query-manager.svelte';
+  import { assetMetadataPanelCompactHeight, assetMetadataPanelHeight } from '$lib/utils/asset-metadata';
   import { isAssetViewerRoute, navigate } from '$lib/utils/navigation';
   import { getTimes, type ScrubberListener } from '$lib/utils/timeline-util';
   import { type AlbumResponseDto, type PersonResponseDto, type UserResponseDto } from '@immich/sdk';
@@ -49,6 +51,7 @@
     onEscape?: () => void;
     children?: Snippet;
     empty?: Snippet;
+    showAssetMetadata?: boolean;
     customThumbnailLayout?: Snippet<[TimelineAsset]>;
     onThumbnailClick?: (
       asset: TimelineAsset,
@@ -81,6 +84,7 @@
     onEscape = () => {},
     children,
     empty,
+    showAssetMetadata = false,
     customThumbnailLayout,
     onThumbnailClick,
   }: Props = $props();
@@ -104,16 +108,27 @@
   const isEmpty = $derived(timelineManager.isInitialized && timelineManager.months.length === 0);
   const maxMd = $derived(mediaQueryManager.maxMd);
   const usingMobileDevice = $derived(mediaQueryManager.pointerCoarse);
+  const compactMetadata = $derived(!maxMd && mediaQueryManager.maxLg);
+  const metadataFooterHeight = $derived(
+    showAssetMetadata ? (maxMd ? 0 : compactMetadata ? assetMetadataPanelCompactHeight : assetMetadataPanelHeight) : 0,
+  );
+  const gridSpacing = $derived(showAssetMetadata && !maxMd ? 8 : 2);
 
   $effect(() => {
     const layoutOptions = maxMd
       ? {
           rowHeight: 100,
           headerHeight: 32,
+          footerHeight: metadataFooterHeight,
+          spacing: gridSpacing,
+          minColumnWidth: 120,
         }
       : {
           rowHeight: 235,
           headerHeight: 48,
+          footerHeight: metadataFooterHeight,
+          spacing: gridSpacing,
+          minColumnWidth: 220,
         };
     timelineManager.setLayoutOptions(layoutOptions);
   });
@@ -553,6 +568,10 @@
   };
 </script>
 
+{#snippet metadataFooter(asset: TimelineAsset)}
+  <AssetMetadataPanel {asset} height={metadataFooterHeight} compact={compactMetadata} />
+{/snippet}
+
 <HotModuleReload
   onAfterUpdate={() => {
     const asset = page.url.searchParams.get('at');
@@ -657,6 +676,8 @@
           <Month
             {assetInteraction}
             {customThumbnailLayout}
+            metadataFooter={showAssetMetadata ? metadataFooter : undefined}
+            footerHeight={metadataFooterHeight}
             {singleSelect}
             {timelineMonth}
             manager={timelineManager}

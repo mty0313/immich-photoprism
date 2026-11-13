@@ -25,6 +25,8 @@
       ]
     >;
     customThumbnailLayout?: Snippet<[TimelineAsset]>;
+    metadataFooter?: Snippet<[TimelineAsset]>;
+    footerHeight?: number;
     singleSelect: boolean;
     assetInteraction: AssetMultiSelectManager;
     timelineMonth: TimelineMonth;
@@ -34,6 +36,8 @@
   let {
     thumbnail: thumbnailWithGroup,
     customThumbnailLayout,
+    metadataFooter,
+    footerHeight = 0,
     singleSelect,
     assetInteraction,
     timelineMonth,
@@ -102,6 +106,8 @@
       height={timelineDay.height}
       width={timelineDay.width}
       {customThumbnailLayout}
+      {metadataFooter}
+      {footerHeight}
     >
       {#snippet thumbnail({ asset, position })}
         {@render thumbnailWithGroup({ asset, position, timelineDay, groupIndex })}

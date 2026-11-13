@@ -30,6 +30,9 @@ const TimeBucketQueryBaseSchema = z
       'Filter by asset visibility status (ARCHIVE, TIMELINE, HIDDEN, LOCKED)',
     ),
     withCoordinates: stringToBool.optional().describe('Include location data in the response'),
+    withExif: stringToBool
+      .optional()
+      .describe('Include camera, exposure and file metadata such as make, model, lens, ISO, aperture and file size'),
     key: z.string().optional(),
     slug: z.string().optional(),
     bbox: z
@@ -122,6 +125,39 @@ const TimeBucketAssetResponseSchema = z
       .array(z.number().meta({ format: 'double' }).nullable())
       .optional()
       .describe('Array of longitude coordinates extracted from EXIF GPS data'),
+    originalFileName: z.array(z.string()).optional().describe('Array of original file names including their extension'),
+    make: z.array(z.string().nullable()).optional().describe('Array of camera manufacturers extracted from EXIF data'),
+    model: z.array(z.string().nullable()).optional().describe('Array of camera models extracted from EXIF data'),
+    lensModel: z.array(z.string().nullable()).optional().describe('Array of lens models extracted from EXIF data'),
+    exposureTime: z
+      .array(z.string().nullable())
+      .optional()
+      .describe('Array of exposure times (shutter speed) extracted from EXIF data'),
+    iso: z.array(z.int32().nullable()).optional().describe('Array of ISO sensitivity values extracted from EXIF data'),
+    fNumber: z
+      .array(z.number().meta({ format: 'double' }).nullable())
+      .optional()
+      .describe('Array of aperture f-numbers extracted from EXIF data'),
+    focalLength: z
+      .array(z.number().meta({ format: 'double' }).nullable())
+      .optional()
+      .describe('Array of focal lengths in millimeters extracted from EXIF data'),
+    exifImageWidth: z
+      .array(z.int32().nullable())
+      .optional()
+      .describe('Array of image widths in pixels extracted from EXIF data'),
+    exifImageHeight: z
+      .array(z.int32().nullable())
+      .optional()
+      .describe('Array of image heights in pixels extracted from EXIF data'),
+    fileSizeInByte: z
+      .array(z.number().meta({ format: 'double' }).nullable())
+      .optional()
+      .describe('Array of file sizes in bytes'),
+    state: z
+      .array(z.string().nullable())
+      .optional()
+      .describe('Array of state or province names extracted from EXIF GPS data'),
   })
   .meta({ id: 'TimeBucketAssetResponseDto' });
 
