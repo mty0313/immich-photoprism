@@ -42,6 +42,7 @@
   } from '$lib/services/album.service';
   import { getGlobalActions } from '$lib/services/app.service';
   import { getAssetBulkActions } from '$lib/services/asset.service';
+  import { mediaQueryManager } from '$lib/stores/media-query-manager.svelte';
   import { SlideshowNavigation, SlideshowState, slideshowStore } from '$lib/stores/slideshow.store';
   import { handlePromiseError } from '$lib/utils';
   import { handleError } from '$lib/utils/handle-error';
@@ -232,10 +233,11 @@
       return {
         visibility: AssetVisibility.Timeline,
         withPartners: true,
+        withExif: !mediaQueryManager.maxMd,
         timelineAlbumId: albumId,
       };
     }
-    return { albumId, order: album.order };
+    return { albumId, order: album.order, withExif: !mediaQueryManager.maxMd };
   });
 
   const isShared = $derived(viewMode === AlbumPageViewMode.SELECT_ASSETS ? false : album.albumUsers.length > 1);
@@ -355,6 +357,7 @@
         {onSelect}
         onEscape={handleEscape}
         withStacked={true}
+        showAssetMetadata
       >
         {#if viewMode !== AlbumPageViewMode.SELECT_ASSETS}
           {#if viewMode !== AlbumPageViewMode.SELECT_THUMBNAIL}
